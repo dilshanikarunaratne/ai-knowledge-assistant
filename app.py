@@ -24,9 +24,15 @@ distances, indices = index.search(question_embedding, k)
 relevant_chunks = [chunks[i] for i in indices[0]]
 context = "\n\n".join(relevant_chunks)
 
+print("\n--- Retrieved Context ---")
+print(context)
+print("-------------------------")
+
 prompt = f"""
 You are an AI assistant.
-Answer using ONLY the context below.
+Answer using the context below.
+You may infer the answer if it is clearly implied by the context.
+Do not use outside knowledge.
 
 Context:
 {context}
