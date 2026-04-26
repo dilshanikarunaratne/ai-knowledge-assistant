@@ -37,6 +37,31 @@ uploaded_file = st.sidebar.file_uploader(
     type=["txt", "pdf"]
 )
 
+st.sidebar.subheader("Current Documents")
+
+os.makedirs(DATA_FOLDER, exist_ok=True)
+
+documents = [
+    file for file in os.listdir(DATA_FOLDER)
+    if file.endswith((".txt", ".pdf"))
+]
+
+if documents:
+    selected_file = st.sidebar.selectbox(
+        "Select a document",
+        documents
+    )
+
+    if st.sidebar.button("Delete Selected Document"):
+        file_path = os.path.join(DATA_FOLDER, selected_file)
+        os.remove(file_path)
+        st.sidebar.success(f"Deleted: {selected_file}")
+        st.sidebar.info("Rebuild the vector store after deleting.")
+else:
+    st.sidebar.info("No documents found.")
+
+
+
 if uploaded_file is not None:
     os.makedirs(DATA_FOLDER, exist_ok=True)
 
@@ -47,6 +72,8 @@ if uploaded_file is not None:
 
     st.sidebar.success(f"Uploaded: {uploaded_file.name}")
     st.sidebar.info("Now rebuild the vector store.")
+
+
 
 if st.sidebar.button("Rebuild Vector Store"):
     with st.sidebar:
