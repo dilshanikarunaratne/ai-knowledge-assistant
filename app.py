@@ -8,7 +8,7 @@ INDEX_FOLDER = "vector_store"
 
 model = SentenceTransformer("all-MiniLM-L6-v2")
 
-index = faiss.read_index(f"{INDEX_FOLDER}/company.index")
+index = faiss.read_index(f"{INDEX_FOLDER}/knowledge.index")
 
 with open(f"{INDEX_FOLDER}/chunks.pkl", "rb") as file:
     chunks = pickle.load(file)
@@ -18,11 +18,18 @@ question = input("Ask a question: ")
 question_embedding = model.encode([question])
 question_embedding = np.array(question_embedding).astype("float32")
 
-k = 2
+k = 3
 distances, indices = index.search(question_embedding, k)
 
 relevant_chunks = [chunks[i] for i in indices[0]]
-context = "\n\n".join(relevant_chunks)
+
+context_parts = []
+for chunk in relevant_chunks:
+    context_parts.append(
+        f"Source: {chunk['source']}\nText: {chunk['text']}"
+    )
+
+context = "\n\n".join(context_parts)
 
 print("\n--- Retrieved Context ---")
 print(context)
@@ -40,7 +47,7 @@ Context:
 Question:
 {question}
 
-If answer not found, say:
+If answer not found or clearly implied, say:
 "I don't know based on the provided knowledge."
 """
 

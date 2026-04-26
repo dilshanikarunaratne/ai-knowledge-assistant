@@ -1,0 +1,2 @@
+The company provides AI automation services including chatbot development, document search systems, email automation, reporting automation, and workflow optimization.
+The company uses local and cloud-based language models depending on the client's needs.
