@@ -12,6 +12,9 @@ st.set_page_config(page_title="AI Knowledge Assistant", page_icon="🤖")
 st.title("AI Knowledge Assistant")
 st.write("Ask questions from your local knowledge base.")
 
+if "chat_history" not in st.session_state:
+    st.session_state.chat_history = []
+
 
 @st.cache_resource
 def load_resources():
@@ -26,20 +29,20 @@ def load_resources():
 
 model, index, chunks = load_resources()
 
+if st.button("Clear Chat History"):
+    st.session_state.chat_history = []
+
 question = st.text_input("Ask a question:")
 
 if st.button("Get Answer") and question:
 
-    # Embed question
     question_embedding = model.encode([question])
     question_embedding = np.array(question_embedding).astype("float32")
 
-    # Retrieve top chunks
     k = 3
     distances, indices = index.search(question_embedding, k)
     relevant_chunks = [chunks[i] for i in indices[0]]
 
-    # Build context
     context_parts = []
     for chunk in relevant_chunks:
         context_parts.append(
@@ -48,7 +51,6 @@ if st.button("Get Answer") and question:
 
     context = "\n\n".join(context_parts)
 
-    # Main prompt
     prompt = f"""
 You are an AI assistant.
 Answer using the context below.
@@ -65,7 +67,6 @@ If answer not found or clearly implied, say:
 "I don't know based on the provided knowledge."
 """
 
-    # Generate answer
     with st.spinner("Thinking..."):
         response = ollama.chat(
             model="llama3.2:1b",
@@ -74,10 +75,6 @@ If answer not found or clearly implied, say:
 
     answer = response["message"]["content"]
 
-    st.subheader("Answer")
-    st.write(answer)
-
-    # QA validation step
     qa_prompt = f"""
 You are a QA validation assistant.
 
@@ -103,9 +100,23 @@ Reason: short explanation
             messages=[{"role": "user", "content": qa_prompt}]
         )
 
-    st.subheader("QA Check")
-    st.write(qa_response["message"]["content"])
+    qa_check = qa_response["message"]["content"]
 
-    # Show retrieved chunks
+    st.session_state.chat_history.append({
+        "question": question,
+        "answer": answer,
+        "qa_check": qa_check,
+        "context": context
+    })
+
+st.subheader("Chat History")
+
+for chat in reversed(st.session_state.chat_history):
+    st.markdown(f"**You:** {chat['question']}")
+    st.markdown(f"**Assistant:** {chat['answer']}")
+    st.markdown(f"**QA Check:** {chat['qa_check']}")
+
     with st.expander("Retrieved Context"):
-        st.write(context)
+        st.write(chat["context"])
+
+    st.divider()
