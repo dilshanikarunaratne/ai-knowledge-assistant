@@ -4,8 +4,11 @@ from sentence_transformers import SentenceTransformer
 import faiss
 import numpy as np
 import pickle
+import os
+import subprocess
 
 INDEX_FOLDER = "vector_store"
+DATA_FOLDER = "data"
 
 st.set_page_config(page_title="AI Knowledge Assistant", page_icon="🤖")
 
@@ -27,7 +30,48 @@ def load_resources():
     return model, index, chunks
 
 
-model, index, chunks = load_resources()
+st.sidebar.header("Document Upload")
+
+uploaded_file = st.sidebar.file_uploader(
+    "Upload a TXT or PDF file",
+    type=["txt", "pdf"]
+)
+
+if uploaded_file is not None:
+    os.makedirs(DATA_FOLDER, exist_ok=True)
+
+    file_path = os.path.join(DATA_FOLDER, uploaded_file.name)
+
+    with open(file_path, "wb") as file:
+        file.write(uploaded_file.getbuffer())
+
+    st.sidebar.success(f"Uploaded: {uploaded_file.name}")
+    st.sidebar.info("Now rebuild the vector store.")
+
+if st.sidebar.button("Rebuild Vector Store"):
+    with st.sidebar:
+        with st.spinner("Rebuilding vector store..."):
+            result = subprocess.run(
+                ["python", "ingest.py"],
+                capture_output=True,
+                text=True
+            )
+
+        if result.returncode == 0:
+            st.cache_resource.clear()
+            st.success("Vector store rebuilt successfully.")
+            st.text(result.stdout)
+        else:
+            st.error("Failed to rebuild vector store.")
+            st.text(result.stderr)
+
+
+try:
+    model, index, chunks = load_resources()
+except Exception:
+    st.error("Vector store not found. Please run `python ingest.py` or rebuild from the sidebar.")
+    st.stop()
+
 
 if st.button("Clear Chat History"):
     st.session_state.chat_history = []

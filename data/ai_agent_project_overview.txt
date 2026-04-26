@@ -1,0 +1,28 @@
+AI Agent Project Overview
+
+Project Name:
+Smart Business Automation Assistant
+
+Purpose:
+The Smart Business Automation Assistant helps small businesses reduce repetitive manual work by using artificial intelligence, document search, and workflow automation.
+
+Main Features:
+The system can answer questions from company documents, search policy files, summarize uploaded documents, and help employees find information faster.
+
+Target Users:
+The main users are small business owners, administrative staff, customer support teams, clinics, law firms, schools, ecommerce shops, and consulting companies.
+
+Technology Stack:
+The system uses Python, Streamlit, Ollama, FAISS, sentence-transformers, and retrieval-augmented generation.
+
+RAG Workflow:
+Documents are uploaded into the system. The system splits documents into chunks, creates embeddings, stores them in a vector database, retrieves relevant chunks, and sends them to a local language model to generate answers.
+
+Reliability:
+The system includes a QA validation step that checks whether the generated answer is supported by the retrieved context.
+
+Future Improvements:
+Future versions may include LangChain, LangGraph, multi-agent workflows, email automation, calendar automation, and robotic process automation features.
+
+Business Value:
+The system saves time, reduces manual searching, improves employee productivity, and helps businesses make better use of internal knowledge.
