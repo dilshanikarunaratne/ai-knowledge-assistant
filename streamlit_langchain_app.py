@@ -11,10 +11,10 @@ from langchain_ollama import OllamaLLM
 DATA_FOLDER = "data"
 CHROMA_FOLDER = "chroma_db"
 
-st.set_page_config(page_title="LangChain Knowledge Assistant", page_icon="🦜")
+st.set_page_config(page_title="LangChain Knowledge Assistant", page_icon="✌")
 
 st.title("LangChain Knowledge Assistant")
-st.write("Ask questions from your TXT and PDF documents using LangChain + Ollama + Chroma.")
+st.write("Ask questions from your Text and PDF documents using LangChain + Ollama + Chroma.")
 
 if "chat_history" not in st.session_state:
     st.session_state.chat_history = []
@@ -26,7 +26,7 @@ if "chat_history" not in st.session_state:
 st.sidebar.header("Document Upload")
 
 uploaded_file = st.sidebar.file_uploader(
-    "Upload a TXT or PDF file",
+    "Upload a Text(.txt) or PDF file",
     type=["txt", "pdf"]
 )
 
@@ -74,8 +74,8 @@ if documents:
 else:
     st.sidebar.info("No documents found.")
 
-
-if st.sidebar.button("Rebuild LangChain Vector Store"):
+# Rebuild LangChain vector store 
+if st.sidebar.button("Rebuild Vector Store"):
     if os.path.exists(CHROMA_FOLDER):
         shutil.rmtree(CHROMA_FOLDER)
 
@@ -92,7 +92,7 @@ st.sidebar.write(f"Documents loaded: {len(documents)}")
 # -----------------------------
 # Helper functions
 # -----------------------------
-def get_conversation_memory(max_turns=3):
+def get_conversation_memory(max_turns=5):
     recent_chats = st.session_state.chat_history[-max_turns:]
 
     memory_parts = []
